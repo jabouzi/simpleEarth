@@ -113,7 +113,7 @@ void Viewer::drawEarth()
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightKs);
 
     // position the light
-    float lightPos[4] = {-10, 0, 5, 0};
+    float lightPos[4] = {0, 0, 7000, 0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
     glEnable(GL_LIGHT0);   
