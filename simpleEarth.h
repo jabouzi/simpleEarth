@@ -58,4 +58,7 @@ private:
     void drawEarth();
     void drawNames();
     void lonLat2Point(float , float , Vector *, int);
+
+    qglviewer::ManipulatedFrame* light1;
+    qglviewer::ManipulatedFrame* light2;
 };
