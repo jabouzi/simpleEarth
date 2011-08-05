@@ -70,7 +70,7 @@ void Viewer::draw()
 
 void Viewer::init()
 {
-    setSceneRadius(7000);
+    setSceneRadius(8000);
 	showEntireScene();
 
     glMatrixMode(GL_MODELVIEW);
