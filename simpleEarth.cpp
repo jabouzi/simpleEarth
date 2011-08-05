@@ -71,7 +71,19 @@ void Viewer::init()
 }
 
 void Viewer::drawEarth()
-{    
+{
+    glEnable(GL_LIGHTING);
+        
+    GLfloat matAmbient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat matDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat matSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat matShininess[] = { 10.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, matAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, matDiffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, matShininess);
+
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -91,7 +103,20 @@ void Viewer::drawEarth()
         }
         glEnd();
     }
-    glDisable(GL_TEXTURE_2D);    
+    glDisable(GL_TEXTURE_2D);
+    
+    GLfloat lightKa[] = {.5f, .5f, .5f, 1.0f};      // ambient light
+    GLfloat lightKd[] = {.9f, .9f, .9f, 1.0f};      // diffuse light
+    GLfloat lightKs[] = {1, 1, 1, 1};               // specular light
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightKa);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightKd);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightKs);
+
+    // position the light
+    float lightPos[4] = {-10, 0, 5, 0};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+    glEnable(GL_LIGHT0);   
 }
 
 void Viewer::drawNames()
