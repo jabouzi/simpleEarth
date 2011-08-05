@@ -21,6 +21,7 @@
 *****************************************************************************/
 
 #include "simpleEarth.h"
+#include "countries.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ void Viewer::draw()
     //glBindTexture(GL_TEXTURE_2D, texture);
     //gluSphere(quadric, 5.0, 50, 100);
     drawEarth();
+    drawNames();
 }
 
 void Viewer::init()
@@ -69,8 +71,7 @@ void Viewer::init()
 }
 
 void Viewer::drawEarth()
-{
-    
+{    
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -91,6 +92,37 @@ void Viewer::drawEarth()
         glEnd();
     }
     glDisable(GL_TEXTURE_2D);    
+}
+
+void Viewer::drawNames()
+{
+    glLineWidth(1);
+    Vector countries_positions[NUM_COUNTRIES];
+    Vector countries_positions2[NUM_COUNTRIES];
+    QFont myFont( "TypeWriter", 6, QFont::Bold);
+    for (int i=0; i<NUM_COUNTRIES-1; i++) {
+       lonLat2Point(countries[i].lon, countries[i].lat, &countries_positions[i],0);
+       lonLat2Point(countries[i].lon, countries[i].lat, &countries_positions2[i],1000);
+       glBegin(GL_LINES);
+           glColor4f(1,0,0,1.0f);
+           glVertex3f (countries_positions[i].x  ,  countries_positions[i].y  ,  countries_positions[i].z);
+           glVertex3f (countries_positions2[i].x  ,  countries_positions2[i].y  ,  countries_positions2[i].z);
+       glEnd();
+       glColor4f(1.0, 1.0, 1.0, 1.0);
+       renderText(countries_positions2[i].x  ,  countries_positions2[i].y  ,  countries_positions2[i].z, QString(countries[i].name), myFont );
+    }
+}
+
+void Viewer::lonLat2Point(float lon, float lat, Vector *pos, int extra = 0)
+{
+    // lat -90..90 => Y
+    // lon -180..180 => X
+    float    angX, angY;
+    angX = (180.f+lat) * PI / 180.f;
+    angY = lon * PI / 180.f;
+    pos->x = fabsf(cosf(angY)) * (EARTH_RADIUS + extra) * sinf(angX);
+    pos->y = EARTH_RADIUS * sinf(angY);
+    pos->z = fabsf(cosf(angY)) * (EARTH_RADIUS + extra) * cosf(angX);
 }
 
 QString Viewer::helpString() const

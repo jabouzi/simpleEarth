@@ -55,5 +55,7 @@ private:
 	GLUquadric	*quadric;
     Vector vertices[EARTH_LON_RES+1][EARTH_LAT_RES+1];
     Mapping mapping[EARTH_LON_RES+1][EARTH_LAT_RES+1];
-    void drawEarth();    
+    void drawEarth();
+    void drawNames();
+    void lonLat2Point(float , float , Vector *, int);
 };
