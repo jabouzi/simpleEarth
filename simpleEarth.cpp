@@ -35,84 +35,23 @@ Viewer::~Viewer()
 // Draws a spiral
 void Viewer::draw()
 {
-    //glBindTexture(GL_TEXTURE_2D, texture);
-    //gluSphere(quadric, 5.0, 50, 100);
-    float pos[4] = {1.0, 0.5, 7000.0, 0.0};
-    // Directionnal light
-    glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
-    pos[3] = 7000.0;
-    // Spot light
-    light1->getPosition(pos[0], pos[1], pos[2]);
-    glLightfv(GL_LIGHT1, GL_POSITION, pos);
-    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1->inverseTransformOf(Vec(0,0,1)));
-
-    // Point light
-    light2->getPosition(pos[0], pos[1], pos[2]);
-    glLightfv(GL_LIGHT2, GL_POSITION, pos);
-    
     drawEarth();
-
-    drawLight(GL_LIGHT0);
-
-    if (light1->grabsMouse())
-        drawLight(GL_LIGHT1, 1.2f);
-    else
-        drawLight(GL_LIGHT1);
-
-    if (light2->grabsMouse())
-        drawLight(GL_LIGHT2, 1.2f);
-    else
-        drawLight(GL_LIGHT2);
-
     //drawNames();
 }
 
 void Viewer::init()
 {
-    setSceneRadius(8000);
-	showEntireScene();
+    //setSceneRadius(10000);
+    //showEntireScene();
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    float pos[4] = {1.0, 0.5, 1.0, 0.0};
+    light1->getPosition(pos[0], pos[1], pos[2]);
+    glLightfv(GL_LIGHT1, GL_POSITION, pos);
 
-    // Light0 is the default ambient light
-    glEnable(GL_LIGHT0);
-
-    // Light1 is a spot light
-    glEnable(GL_LIGHT1);
-    const GLfloat light_ambient[4]  = {0.8f, 0.2f, 0.2f, 1.0};
-    const GLfloat light_diffuse[4]  = {1.0, 0.4f, 0.4f, 1.0};
-    const GLfloat light_specular[4] = {1.0, 0.0, 0.0, 1.0};
-
-    glLightf( GL_LIGHT1, GL_SPOT_EXPONENT,  3.0);
-    glLightf( GL_LIGHT1, GL_SPOT_CUTOFF,    20.0);
-    glLightf( GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.5);
-    glLightf( GL_LIGHT1, GL_LINEAR_ATTENUATION, 1.0);
-    glLightf( GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 1.5);
-    glLightfv(GL_LIGHT1, GL_AMBIENT,  light_ambient);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE,  light_diffuse);
-
-    // Light2 is a classical directionnal light
-    glEnable(GL_LIGHT2);
-    const GLfloat light_ambient2[4]  = {0.2f, 0.2f, 2.0, 1.0};
-    const GLfloat light_diffuse2[4]  = {0.8f, 0.8f, 1.0, 1.0};
-    const GLfloat light_specular2[4] = {0.0, 0.0, 1.0, 1.0};
-
-    glLightfv(GL_LIGHT2, GL_AMBIENT,  light_ambient2);
-    glLightfv(GL_LIGHT2, GL_SPECULAR, light_specular2);
-    glLightfv(GL_LIGHT2, GL_DIFFUSE,  light_diffuse2);
-
-    light1 = new ManipulatedFrame();
-    light2 = new ManipulatedFrame();
-    setMouseTracking(true);
-
-    light1->setPosition(0.5, 0.5, 7000);
-    // Align z axis with -position direction : look at scene center
-    light1->setOrientation(Quaternion(Vec(0,0,1), -light1->position()));
-
-    light2->setPosition(-0.5, 0.5, 7000);
+    if (light1->grabsMouse())
+        drawLight(GL_LIGHT1, 1.2f);
+    else
+        drawLight(GL_LIGHT1);
 
     QImage image = QGLWidget::convertToGLFormat(QImage("earth.jpg"));
 	glGenTextures(1, &texture);
@@ -137,12 +76,13 @@ void Viewer::init()
             mapping[x][y].u = (float)x / EARTH_LON_RES;
             mapping[x][y].v = (float)y / EARTH_LAT_RES;
         }
-    }
+    }    
 }
 
 void Viewer::drawEarth()
 {
     glEnable(GL_LIGHTING);
+
         
     /*GLfloat matAmbient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat matDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -153,15 +93,15 @@ void Viewer::drawEarth()
     glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
     glMaterialfv(GL_FRONT, GL_SHININESS, matShininess);*/
 
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, texture);
-    //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    //glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     int x, y;  
     for (y=0; y<EARTH_LAT_RES; y++) {
-        //glBegin(GL_QUAD_STRIP);  
-        glBegin(GL_POINTS);  
+        glBegin(GL_QUAD_STRIP);
+        //glBegin(GL_POINTS);
         for (x=0; x<EARTH_LON_RES; x++) {
             glTexCoord2fv((GLfloat*)&mapping[x][y]);
             glVertex3fv((GLfloat*)&vertices[x][y]);
@@ -173,21 +113,27 @@ void Viewer::drawEarth()
             glVertex3fv((GLfloat*)&vertices[x+1][y+1]);
         }
         glEnd();
-    }
-    //glDisable(GL_TEXTURE_2D);
+    }    
+    glDisable(GL_TEXTURE_2D);
+    //glDisable(GL_DEPTH_TEST);
+    //glPushMatrix ();
     
+   // glEnable(GL_LIGHT1);
     /*GLfloat lightKa[] = {.5f, .5f, .5f, 1.0f};      // ambient light
     GLfloat lightKd[] = {.9f, .9f, .9f, 1.0f};      // diffuse light
     GLfloat lightKs[] = {1, 1, 1, 1};               // specular light
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightKa);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightKd);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lightKs);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, lightKa);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightKd);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, lightKs);
 
     // position the light
-    float lightPos[4] = {0, 0, 7000, 0};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);*/
+    light1 = new ManipulatedFrame();
+    setMouseTracking(true);
 
-    //glEnable(GL_LIGHT0);   
+    light1->setPosition(0, 0, 9000);
+    restoreStateFromFile();*/
+
+    //glPopMatrix ();
 }
 
 void Viewer::drawNames()
