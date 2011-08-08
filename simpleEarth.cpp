@@ -167,7 +167,7 @@ void Viewer::drawNames()
            glVertex3f (countries_positions2[i].x  ,  countries_positions2[i].y  ,  countries_positions2[i].z);
        glEnd();
        glColor4f(1.0, 1.0, 1.0, 1.0);
-       renderText(countries_positions2[i].x  ,  countries_positions2[i].y  ,  countries_positions2[i].z, QString(countries[i].name), myFont );
+       renderText(countries_positions2[i].x  ,  countries_positions2[i].y  ,  countries_positions2[i].z, countries[i].name, myFont );
     }
 }
 
