@@ -23,6 +23,7 @@
 #include "simpleEarth.h"
 #include "countries.h"
 #include <math.h>
+#include <QDebug>
 
 using namespace std;
 using namespace qglviewer;
@@ -35,23 +36,24 @@ Viewer::~Viewer()
 // Draws a spiral
 void Viewer::draw()
 {
+    float pos[4] = {-8000, -8000, -9000, 0};
+    light1->getPosition(pos[0], pos[1], pos[2]);
+    glLightfv(GL_LIGHT1, GL_POSITION, pos);
     drawEarth();
+    if (light1->grabsMouse())
+        drawLight(GL_LIGHT1, 1.2f);
+    else
+        drawLight(GL_LIGHT1); 
     //drawNames();
 }
 
 void Viewer::init()
 {
-    //setSceneRadius(10000);
-    //showEntireScene();
+    setSceneRadius(10000);
+    showEntireScene();
 
-    float pos[4] = {1.0, 0.5, 1.0, 0.0};
-    light1->getPosition(pos[0], pos[1], pos[2]);
-    glLightfv(GL_LIGHT1, GL_POSITION, pos);
-
-    if (light1->grabsMouse())
-        drawLight(GL_LIGHT1, 1.2f);
-    else
-        drawLight(GL_LIGHT1);
+    glEnable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
 
     QImage image = QGLWidget::convertToGLFormat(QImage("earth.jpg"));
 	glGenTextures(1, &texture);
@@ -75,13 +77,27 @@ void Viewer::init()
             vertices[x][y].z = fabsf(cosf(angY)) * EARTH_RADIUS * cosf(angX);
             mapping[x][y].u = (float)x / EARTH_LON_RES;
             mapping[x][y].v = (float)y / EARTH_LAT_RES;
+            qDebug() << vertices[x][y].x << vertices[x][y].y << vertices[x][y].z;
         }
-    }    
+    }
+
+    glEnable(GL_LIGHT1);
+    GLfloat lightKa[] = {.0f, .0f, .0f, 1.0f};      // ambient light
+    GLfloat lightKd[] = {.9f, .9f, .9f, 1.0f};      // diffuse light
+    GLfloat lightKs[] = {1, 1, 1, 1};               // specular light
+    glLightfv(GL_LIGHT1, GL_AMBIENT, lightKa);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightKd);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, lightKs);
+    
+    light1 = new ManipulatedFrame();
+    setMouseTracking(true);
+
+    light1->setPosition(-8000, -8000, -9000);
 }
 
 void Viewer::drawEarth()
 {
-    glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHTING);
 
         
     /*GLfloat matAmbient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -163,7 +179,7 @@ void Viewer::lonLat2Point(float lon, float lat, Vector *pos, int extra = 0)
     angX = (180.f+lat) * PI / 180.f;
     angY = lon * PI / 180.f;
     pos->x = fabsf(cosf(angY)) * (EARTH_RADIUS + extra) * sinf(angX);
-    pos->y = EARTH_RADIUS * sinf(angY);
+    pos->y = EARTH_RADIUS + extra * sinf(angY);
     pos->z = fabsf(cosf(angY)) * (EARTH_RADIUS + extra) * cosf(angX);
 }
 
